@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${DISCOVERY_SERVER}:8761/eureka/
+
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+
+      routes:
+        - id: PRODUCTS
+          uri: http://${PRODUCTS_SERVICE}:8081/
+          predicates:
+            - Path=/products/**
+
+        - id: Seller
+          uri: http://${PRODUCTS_SERVICE}:8081/
+          predicates:
+            - Path=/company/**
+          filters:
+            - AuthenticationFilter
+
+        - id: Admin
+          uri: http://${PRODUCTS_SERVICE}:8081/
+          predicates:
+            - Path=/admin/**
+          filters:
+            - AuthenticationFilter
+
+        - id: User
+          uri: http://${PRODUCTS_SERVICE}:8081/
+          predicates:
+            - Path=/user/**
+          filters:
+            - AuthenticationFilter
+
+        - id: identity-service
+          uri: http://${IDENTITY_SERVICE}:8082/
+          predicates:
+            - Path=/auth/**
+          filters:
+            - AuthenticationFilter
+
+  application:
+    name: GATEWAY
+

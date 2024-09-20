@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/Products
+    username: postgres
+    password: password
+
+  jpa:
+    show-sql: true
+    generate-ddl: true
+
+    hibernate:
+      ddl-auto: validate
+
+  application:
+    name: Store
+
+  liquibase:
+    change-log: db/dbchangelog.yaml
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+identity:
+  server: localhost
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug

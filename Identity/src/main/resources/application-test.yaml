@@ -1,0 +1,30 @@
+spring:
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+    hibernate:
+      ddl-auto: validate
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/Identity
+    username: postgres
+    password: password
+
+  liquibase:
+    change-log: db/dbchangelog-test.yaml
+
+  application:
+    name: IDENTITY
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+products:
+  server: localhost
+
+server:
+  port: 8082

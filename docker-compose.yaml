@@ -1,0 +1,92 @@
+services:
+
+  databased:
+    image: postgres:latest
+    environment:
+      POSTGRES_MULTIPLE_DATABASES: identity,products
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
+    networks:
+      - good_network
+
+  discover-server:
+    build: ./Discovery-Server
+    ports:
+      - "8761:8761"
+    restart: always
+    networks:
+      - good_network
+
+  gateway:
+    build: ./Gateway
+    ports:
+      - "8080:8080"
+    environment:
+      DISCOVERY_SERVER: discover-server
+      PRODUCTS_SERVICE: products
+      IDENTITY_SERVICE: identity
+      SPRING_PROFILES_ACTIVE: dev
+    networks:
+      - good_network
+
+  identity:
+    build: ./Identity
+    ports:
+      - "8082:8082"
+    depends_on:
+      - databased
+      - discover-server
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_SERVER: databased
+      DB_PORT: 5432
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: identity
+      DISCOVERY_SERVER: discover-server
+    networks:
+      - good_network
+
+  redisdb:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+
+  products:
+    build: ./Products
+    ports:
+      - "8081:8081"
+    depends_on:
+      - databased
+      - discover-server
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_SERVER: databased
+      DB_PORT: 5432
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: products
+      DISCOVERY_SERVER: discover-server
+      IDENTITY: gateway
+    networks:
+      - good_network
+
+
+
+  frontend:
+    ports:
+      - "4200:80"
+
+networks:
+  good_network:
+    name: good_network
+    driver: bridge
+
+
